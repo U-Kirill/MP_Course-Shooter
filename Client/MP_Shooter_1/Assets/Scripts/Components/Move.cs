@@ -23,5 +23,10 @@ namespace Components
         {
             _movement = direction.normalized * _speed;
         }
+
+        public void GetInfo(out Vector3 position)
+        {
+            position = transform.position;
+        }
     }
 }
