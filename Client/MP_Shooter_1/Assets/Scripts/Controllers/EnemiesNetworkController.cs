@@ -12,18 +12,21 @@ namespace Controllers
         [SerializeField] private Server.Server _server;
         [SerializeField] private ActorStorage _ememiesStorage;
 
-        private Dictionary<string, Move> _enemies = new Dictionary<string, Move>(); 
+        private Dictionary<string, Move> _enemies = new Dictionary<string, Move>();
+        private List<string> _wasChanged;
         
         private void OnEnable()
         {
             _ememiesStorage.OnActorAdded += OnActorAdded;
             _ememiesStorage.OnActorRemoved += OnActorRemoved;
+            _server.OnStateRefreshed += OnStateRefreshed;
         }
 
         private void OnDisable()
         {
             _ememiesStorage.OnActorAdded -= OnActorAdded;
             _ememiesStorage.OnActorRemoved -= OnActorRemoved;
+            _server.OnStateRefreshed -= OnStateRefreshed;
         }
 
         private void OnActorAdded(ActorStorage.Data data)
@@ -41,10 +44,32 @@ namespace Controllers
             _enemies.Remove(data.SessionId);
         }
 
+        private void OnStateRefreshed(State state)
+        {
+            state.players.ForEach((sessionId, player) =>
+            {
+                if(!_enemies.TryGetValue(sessionId, out Move enemyMove))
+                    return;
+                
+                if(_wasChanged.Contains(sessionId))
+                    return;
+                
+                //этот метод не тормозит, потому что не вызывается
+                enemyMove.SetMovement(Vector3.zero);
+            });
+            
+            _wasChanged.Clear();
+        }
+
         private void OnStateRefreshed(string sessionId, List<DataChange> changes)
         {
-            Vector3 currentPos = Vector3.zero;
-            Vector3 oldPos = Vector3.zero;
+            if(!_enemies.TryGetValue(sessionId, out Move enemyMove))
+                return;
+            
+            enemyMove.GetInfo(out Vector3 position);
+            
+            Vector3 currentPos = position;
+            Vector3 oldPos = position;
 
             foreach (DataChange change in changes)
             {
@@ -62,12 +87,9 @@ namespace Controllers
             }
 
             Vector3 direction = currentPos - oldPos;
-
-            if(!_enemies.TryGetValue(sessionId, out Move enemyMove))
-                return;
-            
             enemyMove.SetPosition(currentPos);
             enemyMove.SetMovement(direction);
+            _wasChanged.Add(sessionId);
         }
     }
 }

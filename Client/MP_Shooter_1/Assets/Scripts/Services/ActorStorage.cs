@@ -21,6 +21,7 @@ namespace Services
                 View = actor,
                 Player = player
             };
+            
             _actors.Add(data);
             OnActorAdded?.Invoke(data);
         }
@@ -28,6 +29,7 @@ namespace Services
         public void RemoveActor(string sessionId)
         {
             Data data = _actors.Find(x => x.SessionId == sessionId);
+            
             _actors.Remove(data);
             OnActorRemoved?.Invoke(data);
         }
