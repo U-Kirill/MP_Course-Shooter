@@ -8,36 +8,35 @@ namespace Services
     {
         private List<Data> _actors = new List<Data>();
         
-        public event Action<GameObject> OnActorAdded;
-        public event Action<GameObject> OnActorRemoved;
+        public event Action<Data> OnActorAdded;
+        public event Action<Data> OnActorRemoved;
 
-        public void AddActor(string sessionId, GameObject actor)
+        public IReadOnlyCollection<Data> Actors => _actors;
+        
+        public void AddActor(string sessionId, GameObject actor, Player player)
         {
-            _actors.Add(new Data
+            var data = new Data
             {
                 SessionId = sessionId,
-                Actor = actor
-            });
-            OnActorAdded?.Invoke(actor);
-        }
-
-        public void RemoveActor(GameObject actor)
-        {
-            _actors.RemoveAll(x => x.Actor == actor);
-            OnActorRemoved?.Invoke(actor);
+                View = actor,
+                Player = player
+            };
+            _actors.Add(data);
+            OnActorAdded?.Invoke(data);
         }
 
         public void RemoveActor(string sessionId)
         {
             Data data = _actors.Find(x => x.SessionId == sessionId);
             _actors.Remove(data);
-            OnActorRemoved?.Invoke(data.Actor);
+            OnActorRemoved?.Invoke(data);
         }
-        
-        private class Data
+
+        public class Data
         {
             public string SessionId;
-            public GameObject Actor;
+            public GameObject View;
+            public Player Player;
         }
     }
 }

@@ -21,9 +21,9 @@ namespace Controllers
             _playerStorage.OnActorAdded -= OnPlayerCreated;
         }
 
-        private void OnPlayerCreated(GameObject player)
+        private void OnPlayerCreated(ActorStorage.Data data)
         {
-            var playerMove = player.GetComponent<Move>();
+            var playerMove = data.View.GetComponent<Move>();
             
             _playerMoveController.SetPlayerMove(playerMove);
             _playerNetworkController.SetPlayerMove(playerMove);

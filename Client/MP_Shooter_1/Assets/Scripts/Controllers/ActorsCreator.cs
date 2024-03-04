@@ -47,13 +47,13 @@ namespace Controllers
         private void CreatePlayer(string sessionId, Player player)
         {
             GameObject playerInstance = Instantiate(_playerPrefab, new Vector3(player.x, 0, player.y), Quaternion.identity);
-            _playersStorage.AddActor(sessionId, playerInstance);
+            _playersStorage.AddActor(sessionId, playerInstance, player);
         }
 
         private void CreateEnemy(string sessionId, Player player)
         {
             GameObject enemyInstance = Instantiate(_enemyPrefab, new Vector3(player.x, 0, player.y), Quaternion.identity);
-            _enemyStorage.AddActor(sessionId, enemyInstance);
+            _enemyStorage.AddActor(sessionId, enemyInstance, player);
         }
 
         private void CreatePlayerOrEnemy(string sessionId, Player player)
